@@ -1,62 +1,110 @@
-#include <stdio.h>
-#include <ctype.h>
-#include <string>
-#include <vector>
-#include <queue>
-#include <fstream>
+//
+//  main.cpp
+//  Traffic Light System
+//
+//  Created by Khai on 11/8/19.
+//  Copyright © 2019 Khai. All rights reserved.
+//
 #include <thread>
 #include <mutex>
+#include <fstream>
+#include <iostream>
+#include <queue>
+#include <ctype.h>
+#include <string>
 
-//Car Structure
+// Car Objects
 class Car {
-    private:
-        int _id;
-        std::string _direction;
-    
-    public: 
+    public:
         Car(int, std::string);
         ~Car();
         void print();
+    
+    private:
+        int _id;
+        std::string _direction;
 };
 
-// Member Functions
 Car::Car(int id, std::string direction) {
     this->_id = id;
     this->_direction = direction;
 }
 
 void Car::print() {
-    printf("ID: %i\n", this->_id);
-    printf("Direction: %s\n", this->_direction.c_str());
+    std::cout << "ID: " << this->_id << std::endl;
+    std::cout << "Direction: " << this->_direction << std::endl;
 }
+
+
+// Road Objects
+class Road {
+    public:
+        Road();
+        void push(Car*);
+        void pop();
+        
+    private:
+        std::queue<Car*> _road;
+};
+
+Road::Road() {
+    
+}
+
+void Road::push(Car* newCar) {
+    this->_road.push(newCar);
+}
+
+void Road::pop() {
+    
+}
+
+Road* north = new Road();
 
 int main() {
     std::ifstream file("inputs/simple.txt");
     std::string line;
-    std::vector<Car*> cars;
 
     if (file.is_open()) {
         while (std::getline(file, line)) {
             int decimal = 1;
 
-            int id = 0;
+            int arrive = 0;
             std::string direction = "";
-            for (int i = line.size() - 1; i >= 0; --i) {
+            for (int i = (int)line.size() - 1; i >= 0; --i) {
                 if (isdigit(line[i])) {
-                    id += (line[i] - '0') * decimal;
+                    arrive += (line[i] - '0') * decimal;
                     decimal *= 10;
                 }
                 else if (isalpha(line[i])) {
-                    direction.push_back(line[i]);
+                    direction = (std::string() + line[i]) + direction;
                 }
             }
-            cars.push_back(new Car(id, direction));
+            
+            switch (line[0]) {
+                case 'N': //Going through North
+                    //south->push();
+                    break;
+                
+                case 'S':
+                    //north->push();
+                    break;
+                    
+                case 'W':
+                    //east->push();
+                    break;
+                    
+                case 'E':
+                    //west->push();
+                    break;
+            }
         }
     }
-
-    for (int i = 0; i < cars.size(); ++i) {
-        cars[i]->print();
-    }
+    
+   
+    std::thread threadOne(&Road::pop, north);
+    threadOne.join();
+    
 
     return 0;
 }
